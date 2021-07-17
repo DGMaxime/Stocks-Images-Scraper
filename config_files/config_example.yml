@@ -1,0 +1,22 @@
+config:
+    search: ['apple', 'orange juice', 'strawberry']
+    images: 100
+    browser: 'chrome'
+    dir: './data'
+    headless: True
+    overwrite: False
+    api_first: True
+stocks:
+    adobestock: False
+    bigstockphoto: False
+    deposit: False
+    flickr: False
+    istockphoto: False
+    pexels: False
+    pinterest: False
+    pixabay: False
+    shutterstock: True
+    stockphoto: False
+    stocksnap: False
+    stockvault: False
+    unsplash: True
