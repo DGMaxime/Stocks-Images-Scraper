@@ -9,7 +9,7 @@ class Shutterstock:
         return self.driver.find_elements_by_xpath('//a/img')
 
     def next_page(self):
-        if self.driver.find_elements_by_xpath('//a[@data-track-label="nextPage"]')[0].get_attribute("disabled"):
+        if not self.driver.find_elements_by_xpath('//a[@data-track-label="nextPage"]') or self.driver.find_elements_by_xpath('//a[@data-track-label="nextPage"]')[0].get_attribute("disabled"):
             return False
         return True
 
