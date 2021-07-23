@@ -1,7 +1,8 @@
 import requests
 import json
 
-class Pexels():
+
+class Pexels:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.image_per_page = 80  # API rate limit
@@ -17,7 +18,7 @@ class Pexels():
         while True:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             res = self.find_images()
-            res = res if not 'last_position' in locals() else res[last_position:]
+            res = res if 'last_position' not in locals() else res[last_position:]
             last_position = len(res)
 
             for position, v in enumerate(res):
@@ -38,26 +39,25 @@ class Pexels():
                     if not save_res:
                         continue
 
-                    print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                    print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                     self.images_remaining -= 1
 
                 except Exception as e:
                     print('[ERROR]', e)
 
-                if self.images_remaining<=0:
+                if self.images_remaining <= 0:
                     return False
 
     def api(self):
         print('API')
-        if self.total_images%self.image_per_page>1:
-            pages = int((self.total_images/self.image_per_page)+1)
+        if self.total_images % self.image_per_page > 1:
+            pages = int((self.total_images / self.image_per_page)+1)
         else:
-            pages = int(self.total_images/self.image_per_page)
+            pages = int(self.total_images / self.image_per_page)
 
         while True:
-            bookmarks = ''
             for page in range(1, pages+1):
-                response = requests.get('https://api.pexels.com/v1/search?query='+self.search+'&page='+str(page)+'&per_page='+str(self.image_per_page), headers={'Authorization':self.api_key.pexels, 'User-Agent':'Mozilla/5.0'})
+                response = requests.get('https://api.pexels.com/v1/search?query='+self.search+'&page='+str(page)+'&per_page='+str(self.image_per_page), headers={'Authorization': self.api_key.pexels, 'User-Agent': 'Mozilla/5.0'})
                 content = json.loads(response.content.decode('utf-8'))['photos']
                 total_results = json.loads(response.content.decode('utf-8'))['total_results']
 
@@ -74,14 +74,14 @@ class Pexels():
                         if not save_res:
                             continue
 
-                        print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                        print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                         self.images_remaining -= 1
 
                     except Exception as e:
                         print(f'[ERROR] {e}')
 
-                    if self.images_remaining<=0:
+                    if self.images_remaining <= 0:
                         return False
 
-                if self.image_per_page*page<total_results or len(content)==0:
-                	return False
+                if self.image_per_page * page < total_results or len(content) == 0:
+                    return False

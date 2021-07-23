@@ -1,7 +1,8 @@
 import requests
 import json
 
-class Pinterest():
+
+class Pinterest:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.image_per_page = 200  # API rate limit
@@ -20,11 +21,11 @@ class Pinterest():
     def remove_cookies_banner(self):
         if self.driver.find_elements_by_xpath('//div[@data-test-id="full-banner"]'):
             self.driver.execute_script("""
-				var el = document.querySelectorAll('[data-test-id="full-banner"]')[0];
-				el.parentNode.removeChild(el);
-				var el = document.querySelectorAll('[data-test-id="giftWrap"]')[0];
-				el.parentNode.removeChild(el);
-			""")
+                var el = document.querySelectorAll('[data-test-id="full-banner"]')[0];
+                el.parentNode.removeChild(el);
+                var el = document.querySelectorAll('[data-test-id="giftWrap"]')[0];
+                el.parentNode.removeChild(el);
+            """)
 
     def scraper(self):
         self.driver.get(self.get_url())
@@ -35,7 +36,7 @@ class Pinterest():
             self.remove_cookies_banner()
 
             res = self.find_images()
-            res = res if not 'last_position' in locals() else res[last_position:]
+            res = res if 'last_position' not in locals() else res[last_position:]
             last_position = len(res)
 
             for position, v in enumerate(res):
@@ -51,21 +52,21 @@ class Pinterest():
                     if not save_res:
                         continue
 
-                    print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                    print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                     self.images_remaining -= 1
 
                 except Exception as e:
                     print('[ERROR]', e)
 
-                if self.images_remaining<=0:
+                if self.images_remaining <= 0:
                     return False
 
     def api(self):
         print('API')
-        if self.total_images%self.image_per_page>1:
-            pages = int((self.total_images/self.image_per_page)+1)
+        if self.total_images % self.image_per_page > 1:
+            pages = int((self.total_images / self.image_per_page)+1)
         else:
-            pages = int(self.total_images/self.image_per_page)
+            pages = int(self.total_images / self.image_per_page)
 
         while True:
             bookmarks = ''
@@ -87,14 +88,14 @@ class Pinterest():
                         if not save_res:
                             continue
 
-                        print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                        print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                         self.images_remaining -= 1
 
                     except Exception as e:
                         print(f'[ERROR] {e}')
 
-                    if self.images_remaining<=0:
+                    if self.images_remaining <= 0:
                         return False
 
-                if bookmarks=='-end-':
-                	return False
+                if bookmarks == '-end-':
+                    return False

@@ -3,6 +3,7 @@ import yaml
 import platform
 import sys
 
+
 class Dotdict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
@@ -12,9 +13,8 @@ class Dotdict(dict):
 
 class Config:
     DRIVERS_FOLDER = './drivers'
-    DRIVERS = {'chrome':'chrome', 'mozilla':'gecko', 'opera':'opera'}
+    DRIVERS = {'chrome': 'chrome', 'mozilla': 'gecko', 'opera': 'opera'}
     CONFIG_FILES_PATH = './config_files'
-
 
     def __init__(self, args):
         if args.file:
@@ -39,21 +39,20 @@ class Config:
 
     def check_api_key(self):
         for stock in self.config['stocks']:
-            if self.config['api_first'] and self.api_key[stock] and self.api_key[stock]=='API_KEY':
+            if self.config['api_first'] and stock in self.api_key and self.api_key[stock] == 'API_KEY':
                 sys.exit('[ERROR] Please enter your API key for '+stock)
 
     def drivers_selection(self, browser):
-        try:
-            if platform.system()=='Linux':
-                driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver_linux')
-            elif platform.system()=='Darwin':
-                if platform.processor()!='arm':
-                    driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver_mac64')
-                elif browser=='chrome' or browser=='gecko':
-                    driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver_mac64_arm')
-            elif platform.system()=='Windows':
-                driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver.exe')
-        except Exception as e:
+        if platform.system() == 'Linux':
+            driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver_linux')
+        elif platform.system() == 'Darwin':
+            if platform.processor() != 'arm':
+                driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver_mac64')
+            elif browser == 'chrome' or browser == 'gecko':
+                driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver_mac64_arm')
+        elif platform.system() == 'Windows':
+            driver_location = os.path.join(self.DRIVERS_FOLDER, self.DRIVERS[browser]+'driver.exe')
+        else:
             sys.exit('[ERROR] Platform or driver not found')
 
         return driver_location

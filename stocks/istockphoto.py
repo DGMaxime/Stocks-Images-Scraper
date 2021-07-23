@@ -1,52 +1,53 @@
 import urllib
 
-class Istockphoto():
-	def __init__(self, **kwargs):
-		self.__dict__.update(kwargs)
 
-	def get_url(self, page):
-		return 'https://www.istockphoto.com/fr/search/2/image?phrase='+self.search+'&page='+str(page)
+class Istockphoto:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
-	def find_images(self):
-		 return self.driver.find_elements_by_xpath('//a/figure/img')
+    def get_url(self, page):
+        return 'https://www.istockphoto.com/fr/search/2/image?phrase='+self.search+'&page='+str(page)
 
-	def next_page(self):
-		if not self.driver.find_elements_by_css_selector('.PaginationRow-module__button___n_Toa'):
-			return False
-		return True
+    def find_images(self):
+        return self.driver.find_elements_by_xpath('//a/figure/img')
 
-	def scraper(self):
-		while True:
-			page = 1 if not 'page' in locals() else page+1
-			self.driver.get(self.get_url(page))
-			self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-			res = self.find_images()
+    def next_page(self):
+        if not self.driver.find_elements_by_css_selector('.PaginationRow-module__button___n_Toa'):
+            return False
+        return True
 
-			for position, v in enumerate(res):
-				image = res[position]
+    def scraper(self):
+        while True:
+            page = 1 if 'page' not in locals() else page+1
+            self.driver.get(self.get_url(page))
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            res = self.find_images()
 
-				try:
-					src = image.get_attribute("src")
-					if src is None:
-						continue
+            for position, v in enumerate(res):
+                image = res[position]
 
-					src = 'https:' + src if not src.startswith('https') and src.startswith('//') else src
+                try:
+                    src = image.get_attribute("src")
+                    if src is None:
+                        continue
 
-					parsed = urllib.parse.urlparse(src)
-					img_name = 'istockphoto-'+urllib.parse.parse_qs(parsed.query)['m'][0]+'-'+urllib.parse.parse_qs(parsed.query)['s'][0]
+                    src = 'https:'+src if not src.startswith('https') and src.startswith('//') else src
 
-					save_res = self.save_images(self.images_dl, self.files_path, src, img_name)
-					if not save_res:
-						continue
+                    parsed = urllib.parse.urlparse(src)
+                    img_name = 'istockphoto-'+urllib.parse.parse_qs(parsed.query)['m'][0]+'-'+urllib.parse.parse_qs(parsed.query)['s'][0]
 
-					print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
-					self.images_remaining -= 1
+                    save_res = self.save_images(self.images_dl, self.files_path, src, img_name)
+                    if not save_res:
+                        continue
 
-				except Exception as e:
-					print('[ERROR]', e)
+                    print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
+                    self.images_remaining -= 1
 
-				if self.images_remaining<=0:
-					return False
+                except Exception as e:
+                    print('[ERROR]', e)
 
-			if not self.next_page():
-				break
+                if self.images_remaining <= 0:
+                    return False
+
+            if not self.next_page():
+                break

@@ -1,6 +1,7 @@
 import re
 
-class Stockphoto():
+
+class Stockphoto:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -15,7 +16,7 @@ class Stockphoto():
         while True:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             res = self.find_images()
-            res = res if not 'last_position' in locals() else res[last_position:]
+            res = res if 'last_position' not in locals() else res[last_position:]
             last_position = len(res)
 
             for position, v in enumerate(res):
@@ -32,11 +33,11 @@ class Stockphoto():
                     if not save_res:
                         continue
 
-                    print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                    print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                     self.images_remaining -= 1
 
                 except Exception as e:
                     print('[ERROR]', e)
 
-                if self.images_remaining<=0:
+                if self.images_remaining <= 0:
                     return False

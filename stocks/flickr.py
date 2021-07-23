@@ -4,7 +4,8 @@ import re
 import requests
 import json
 
-class Flickr():
+
+class Flickr:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.image_width = ['c', 'z', 'w', 'n', 'm', 'q']
@@ -44,7 +45,7 @@ class Flickr():
             time.sleep(2)
 
             res = self.find_images()
-            res = res if not 'last_position' in locals() else res[last_position:]
+            res = res if 'last_position' not in locals() else res[last_position:]
             last_position = len(res)
 
             for position, v in enumerate(res):
@@ -65,23 +66,23 @@ class Flickr():
                         if save_res:
                             break
 
-                    print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                    print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                     self.images_remaining -= 1
 
                 except Exception as e:
                     print('[ERROR]', e)
 
-                if self.images_remaining<=0:
+                if self.images_remaining <= 0:
                     return False
 
             self.load_more_results()
 
     def api(self):
         print('API')
-        if self.total_images%self.image_per_page>1:
-            pages = int((self.total_images/self.image_per_page)+1)
+        if self.total_images % self.image_per_page > 1:
+            pages = int((self.total_images / self.image_per_page)+1)
         else:
-            pages = int(self.total_images/self.image_per_page)
+            pages = int(self.total_images / self.image_per_page)
 
         while True:
             for page in range(1, pages+1):
@@ -102,14 +103,14 @@ class Flickr():
                             if not save_res:
                                 continue
 
-                            print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                            print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                             self.images_remaining -= 1
 
                     except Exception as e:
                         print('[ERROR]', e)
 
-                    if self.images_remaining<=0:
+                    if self.images_remaining <= 0:
                         return False
 
-                if actual_page>total_pages or len(content)==0:
+                if actual_page > total_pages or len(content) == 0:
                     return False

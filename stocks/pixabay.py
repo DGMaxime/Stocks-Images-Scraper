@@ -4,7 +4,7 @@ import requests
 import json
 
 
-class Pixabay():
+class Pixabay:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
         self.image_per_page = 200  # API rate limit
@@ -22,7 +22,7 @@ class Pixabay():
 
     def scraper(self):
         while True:
-            page = 1 if not 'page' in locals() else page+1
+            page = 1 if 'page' not in locals() else page+1
             self.driver.get(self.get_url(page))
             time.sleep(3)
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -46,13 +46,13 @@ class Pixabay():
                     if not save_res:
                         continue
 
-                    print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                    print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                     self.images_remaining -= 1
 
                 except Exception as e:
                     print('[ERROR]', e)
 
-                if self.images_remaining<=0:
+                if self.images_remaining <= 0:
                     return False
 
             if not self.next_page():
@@ -60,13 +60,12 @@ class Pixabay():
 
     def api(self):
         print('API')
-        if self.total_images%self.image_per_page>1:
-            pages = int((self.total_images/self.image_per_page)+1)
+        if self.total_images % self.image_per_page > 1:
+            pages = int((self.total_images / self.image_per_page)+1)
         else:
-            pages = int(self.total_images/self.image_per_page)
+            pages = int(self.total_images / self.image_per_page)
 
         while True:
-            bookmarks = ''
             for page in range(1, pages+1):
                 response = requests.get('https://pixabay.com/api/?key='+self.api_key.pixabay+'&q='+self.search+'&page='+str(page)+'&per_page='+str(self.image_per_page)+'&image_type=photo&order=popular')
                 content = json.loads(response.content.decode('utf-8'))['hits']
@@ -81,16 +80,16 @@ class Pixabay():
 
                         save_res = self.save_images(self.images_dl, self.files_path, src)
                         if not save_res:
-                        	continue
+                            continue
 
-                        print("Image: %s / %s"%(self.total_images-self.images_remaining, self.total_images), end="\r")
+                        print("Image: %s / %s" % (self.total_images-self.images_remaining, self.total_images), end="\r")
                         self.images_remaining -= 1
 
                     except Exception as e:
                         print(f'[ERROR] {e}')
 
-                    if self.images_remaining<=0:
+                    if self.images_remaining <= 0:
                         return False
 
-                if page==int(total_hits/self.image_per_page)+1:
+                if page == int(total_hits / self.image_per_page)+1:
                     return False

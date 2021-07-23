@@ -13,13 +13,15 @@ import re
 import hashlib
 import stocks
 
+
 class ScraperDriver(Config, Dotdict):
     def __init__(self, c):
         self.config = Dotdict(c.config)
         self.driver_location = c.driver_location
         self.api_key = c.api_key
 
-    def check_b64(self, source):
+    @staticmethod
+    def check_b64(source):
         header = source.split(',')[0]
         if header.startswith('data') and header.endswith(';base64'):
             image_type = re.search('data:image/(.*);base64', header)
@@ -33,8 +35,8 @@ class ScraperDriver(Config, Dotdict):
         if is_b64:
             extension = is_b64
             content = base64.b64decode(src.split(';base64')[1])
-            filename = 'base64-' + str(hashlib.md5(content).hexdigest())
-            if not self.config.overwrite and filename + '.' + extension in images_dl:
+            filename = 'base64-'+str(hashlib.md5(content).hexdigest())
+            if not self.config.overwrite and filename+'.'+extension in images_dl:
                 write = False
 
         # URL
@@ -46,7 +48,7 @@ class ScraperDriver(Config, Dotdict):
                     filename, _ = os.path.splitext(src.split('/')[-1])
                 resp = requests.get(src, stream=True, headers={'User-Agent': 'Mozilla/5.0'})
 
-                if len(resp.content)>0:
+                if len(resp.content) > 0:
                     image = Image.open(BytesIO(resp.content))
                     extension = image.format.lower()
                     content = resp.content
@@ -92,20 +94,22 @@ class ScraperDriver(Config, Dotdict):
             keyword = keyword.translate(str.maketrans(string.punctuation, ' '*len(string.punctuation)))
             search = parse.quote(keyword)
 
-            files_path = os.path.join(self.config.dir, search.replace(" ", "_"), stock)
+            files_path = os.path.join(self.config.dir, keyword.replace(' ', '_'), stock)
             os.makedirs(files_path, exist_ok=True)
             dl = [i for i in os.listdir(files_path)]
 
             kwargs = {
-                'driver':driver,
-                'search':search,
-                'total_images':self.config.images,
-                'images_remaining':self.config.images,
-                'images_dl':dl,
-                'files_path':files_path,
-                'save_images':self.save_images,
-                'api_key':self.api_key
+                'driver': driver,
+                'search': search,
+                'total_images': self.config.images,
+                'images_remaining': self.config.images,
+                'images_dl': dl,
+                'files_path': files_path,
+                'save_images': self.save_images,
+                'api_key': self.api_key
             }
             c = getattr(stocks, stock.capitalize())(**kwargs)
             c.api() if self.config.api_first and 'api' in dir(c) else c.scraper()
             print(end="\n")
+
+        driver.close()
